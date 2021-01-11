@@ -77,6 +77,7 @@ public class ParamNameResolver {
       if (name == null) {
         // @Param was not specified.
         if (useActualParamName) {
+          //在jdk8以前 调用 getName会有问题 arg0
           name = getActualParamName(method, paramIndex);
         }
         if (name == null) {
@@ -123,10 +124,10 @@ public class ParamNameResolver {
     final int paramCount = names.size();
     if (args == null || paramCount == 0) {
       return null;
-    } else if (!hasParamAnnotation && paramCount == 1) {
+    } else if (!hasParamAnnotation && paramCount == 1) {//一个参数
       Object value = args[names.firstKey()];
       return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
-    } else {
+    } else {//多个参数
       final Map<String, Object> param = new ParamMap<>();
       int i = 0;
       for (Map.Entry<Integer, String> entry : names.entrySet()) {

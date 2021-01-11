@@ -107,9 +107,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      //别名 类型class别名
       typeAliasesElement(root.evalNode("typeAliases"));
+      //插件
       pluginElement(root.evalNode("plugins"));
+      //objectFactory自定义实例化对象的行为
       objectFactoryElement(root.evalNode("objectFactory"));
+      //MateObject 反射用的翻遍反射操作实体类对象
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
@@ -117,6 +121,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       typeHandlerElement(root.evalNode("typeHandlers"));
+      //解析mapper
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -166,6 +171,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         } else {
           String alias = child.getStringAttribute("alias");
           String type = child.getStringAttribute("type");
+          //com.luban.DemoMapper alais =DemoMapper type=com.luban.DemoMapper
           try {
             Class<?> clazz = Resources.classForName(type);
             if (alias == null) {
@@ -362,14 +368,19 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
+      //遍历mapper节点
       for (XNode child : parent.getChildren()) {
+        //解析package节点 到底解析xml还是注解
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
         } else {
+          //三种 resource url class
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
+          //解析mapper.xml
+          //三种值只能是一个有值
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
             InputStream inputStream = Resources.getResourceAsStream(resource);

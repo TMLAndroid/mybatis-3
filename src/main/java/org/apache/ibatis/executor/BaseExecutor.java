@@ -151,8 +151,10 @@ public abstract class BaseExecutor implements Executor {
       queryStack++;
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
+        //对于存储过程有输出资源的流程
         handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
       } else {
+        //【调用】
         list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
       }
     } finally {
@@ -196,7 +198,13 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
+    //生成缓存key
     CacheKey cacheKey = new CacheKey();
+    //hashcode的计算 判断是否是同一条查询结果
+    //id namespace+id  com.mapper.DemoMapper.selectAll
+    //如果开启分页 起始位置 和查询条数相同
+    //绑定的sql相同
+    //传的参数相同
     cacheKey.update(ms.getId());
     cacheKey.update(rowBounds.getOffset());
     cacheKey.update(rowBounds.getLimit());
@@ -320,8 +328,10 @@ public abstract class BaseExecutor implements Executor {
 
   private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
     List<E> list;
+    //一级缓存
     localCache.putObject(key, EXECUTION_PLACEHOLDER);
     try {
+      //【调用】
       list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
     } finally {
       localCache.removeObject(key);

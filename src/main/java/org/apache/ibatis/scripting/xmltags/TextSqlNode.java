@@ -41,7 +41,7 @@ public class TextSqlNode implements SqlNode {
   public boolean isDynamic() {
     DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
     GenericTokenParser parser = createParser(checker);
-    parser.parse(text);
+    parser.parse(text);//解析 #{}
     return checker.isDynamic();
   }
 
@@ -52,6 +52,7 @@ public class TextSqlNode implements SqlNode {
     return true;
   }
 
+  //$
   private GenericTokenParser createParser(TokenHandler handler) {
     return new GenericTokenParser("${", "}", handler);
   }
@@ -74,6 +75,7 @@ public class TextSqlNode implements SqlNode {
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+      //ognl $不会进行类型转换 #会进行类型转换
       Object value = OgnlCache.getValue(content, context.getBindings());
       String srtValue = value == null ? "" : String.valueOf(value); // issue #274 return "" instead of "null"
       checkInjection(srtValue);
@@ -99,6 +101,7 @@ public class TextSqlNode implements SqlNode {
       return isDynamic;
     }
 
+    //当扫描到${}调用此方法 其实就是不解析 在运行的时候再替换成具体的值
     @Override
     public String handleToken(String content) {
       this.isDynamic = true;

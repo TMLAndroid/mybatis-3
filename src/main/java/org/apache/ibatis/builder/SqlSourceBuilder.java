@@ -40,10 +40,12 @@ public class SqlSourceBuilder extends BaseBuilder {
     super(configuration);
   }
 
+  //#
   public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
     ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
     GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
     String sql;
+    // parse #会替换成?
     if (configuration.isShrinkWhitespacesInSql()) {
       sql = parser.parse(removeExtraWhitespaces(originalSql));
     } else {
@@ -82,6 +84,7 @@ public class SqlSourceBuilder extends BaseBuilder {
       return parameterMappings;
     }
 
+    //全局扫描#{id}字符串字后，调用handleToken 替换成？
     @Override
     public String handleToken(String content) {
       parameterMappings.add(buildParameterMapping(content));

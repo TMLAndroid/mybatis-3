@@ -41,7 +41,9 @@ public class TransactionalCache implements Cache {
 
   private final Cache delegate;
   private boolean clearOnCommit;
+  //所有待提交缓存
   private final Map<Object, Object> entriesToAddOnCommit;
+  //未命中缓存集合 防止缓存穿透
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
@@ -76,6 +78,7 @@ public class TransactionalCache implements Cache {
     }
   }
 
+  //本来应该put缓存里去
   @Override
   public void putObject(Object key, Object object) {
     entriesToAddOnCommit.put(key, object);
@@ -100,6 +103,7 @@ public class TransactionalCache implements Cache {
     reset();
   }
 
+  //撤销
   public void rollback() {
     unlockMissedEntries();
     reset();
@@ -113,9 +117,11 @@ public class TransactionalCache implements Cache {
 
   private void flushPendingEntries() {
     for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
+      //put到真实缓存
       delegate.putObject(entry.getKey(), entry.getValue());
     }
     for (Object entry : entriesMissedInCache) {
+      //也会把未命中的一起put
       if (!entriesToAddOnCommit.containsKey(entry)) {
         delegate.putObject(entry, null);
       }

@@ -70,6 +70,8 @@ public class CacheKey implements Cloneable, Serializable {
   }
 
   public void update(Object object) {
+    //map 判断两个key 先hashcode 再判断equals
+
     int baseHashCode = object == null ? 1 : ArrayUtil.hashCode(object);
 
     count++;

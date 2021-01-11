@@ -114,6 +114,7 @@ public class MapperAnnotationBuilder {
 
   public void parse() {
     String resource = type.toString();
+    //如果之前解析了xml 这里就不会解析
     if (!configuration.isResourceLoaded(resource)) {
       loadXmlResource();
       configuration.addLoadedResource(resource);
@@ -129,6 +130,7 @@ public class MapperAnnotationBuilder {
           parseResultMap(method);
         }
         try {
+          //注解解析
           parseStatement(method);
         } catch (IncompleteElementException e) {
           configuration.addIncompleteMethod(new MethodResolver(this, method));

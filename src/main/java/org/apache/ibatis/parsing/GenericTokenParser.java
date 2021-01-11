@@ -30,6 +30,7 @@ public class GenericTokenParser {
     this.handler = handler;
   }
 
+  //遍历里面所有#{}的值
   public String parse(String text) {
     if (text == null || text.isEmpty()) {
       return "";
@@ -69,11 +70,12 @@ public class GenericTokenParser {
             break;
           }
         }
-        if (end == -1) {
+        if (end == -1) { //不存在
           // close token was not found.
           builder.append(src, start, src.length - start);
           offset = src.length;
         } else {
+          //调用handleToken
           builder.append(handler.handleToken(expression.toString()));
           offset = end + closeToken.length();
         }
